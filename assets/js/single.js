@@ -1,4 +1,5 @@
 const issueContainerEl = document.querySelector('#issues-container');
+const limitWarningEl = document.querySelector('#limit-warning');
 
 const getRepoIssues = function (repo) {
   const apiUrl =
@@ -10,6 +11,11 @@ const getRepoIssues = function (repo) {
       res.json().then(function (data) {
         // pass response data to dom function
         displayIssues(data);
+
+        // cheeck if api has paginated issues
+        if (res.headers.get('Link')) {
+          displayWarning(repo);
+        }
       });
     } else {
       alert('There was a problem with your request!');
@@ -55,4 +61,16 @@ const displayIssues = function (issues) {
   }
 };
 
-getRepoIssues('branjames117/git-it-done');
+const displayWarning = function (repo) {
+  // add text to warning container
+  limitWarningEl.textContent = 'To see more than 30 issues, visit ';
+
+  // create and append link
+  const linkEl = document.createElement('a');
+  linkEl.textContent = 'https://github.com/' + repo + '/issues';
+  linkEl.setAttribute('href', 'https://github.com/' + repo + '/issues');
+  linkEl.setAttribute('target', '_blank');
+  limitWarningEl.appendChild(linkEl);
+};
+
+getRepoIssues('facebook/react');
